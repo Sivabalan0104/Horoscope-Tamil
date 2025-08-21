@@ -58,13 +58,12 @@
      * @returns {object} - The planetary positions object.
      */
     function getPlanetPositions(birthDateTime, location) {
-        try {
-            // Attempt to use the function as documented in one version of the library
+        if (jyotish.grahas && typeof jyotish.grahas.calculatePositions === 'function') {
             return jyotish.grahas.calculatePositions(birthDateTime, location);
-        } catch (e) {
-            // If that fails, try the alternative function name from another version
-            console.error("Attempting fallback for planet position calculation due to error:", e.message);
+        } else if (jyotish.graha && typeof jyotish.graha.calculatePlanetPositions === 'function') {
             return jyotish.graha.calculatePlanetPositions(birthDateTime, location);
+        } else {
+            throw new Error("Could not find a valid planetary calculation function in the 'jyotish-calculations' library. Please check your library version.");
         }
     }
 
