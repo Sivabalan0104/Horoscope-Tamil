@@ -1,6 +1,7 @@
     const express = require('express');
     const path = require('path');
-    const jyotish = require('jyotish-calculations');
+    // Corrected: Use the 'jyotish' library name from your package.json
+    const jyotish = require('jyotish');
     const geocoder = require('node-geocoder');
 
     const app = express();
@@ -46,7 +47,8 @@
      * @returns {number} - The Lagna Rasi index (0-11).
      */
     function calculateAscendant(birthDateTime, location) {
-        const lagnaInfo = jyotish.lagna.calculateAscendant(birthDateTime, location);
+        // Corrected: Use the correct function from the 'jyotish' library
+        const lagnaInfo = jyotish.positioner.getLagna(birthDateTime, location.latitude, location.longitude, 0);
         const lagnaIndex = Math.floor(lagnaInfo.longitude / 30);
         return lagnaIndex;
     }
@@ -58,13 +60,8 @@
      * @returns {object} - The planetary positions object.
      */
     function getPlanetPositions(birthDateTime, location) {
-        if (jyotish.grahas && typeof jyotish.grahas.calculatePositions === 'function') {
-            return jyotish.grahas.calculatePositions(birthDateTime, location);
-        } else if (jyotish.graha && typeof jyotish.graha.calculatePlanetPositions === 'function') {
-            return jyotish.graha.calculatePlanetPositions(birthDateTime, location);
-        } else {
-            throw new Error("Could not find a valid planetary calculation function in the 'jyotish-calculations' library. Please check your library version.");
-        }
+        // Corrected: Use the correct function from the 'jyotish' library
+        return jyotish.positioner.getBirthChart(birthDateTime, location.latitude, location.longitude, 0);
     }
 
     /**
@@ -83,8 +80,9 @@
         horoscopeText += `லக்னம்: ${RASI_NAMES_TAMIL[lagnaIndex]} \n\n`;
         horoscopeText += `கிரகங்களின் நிலைகள்: \n`;
 
-        for (const graha in planetPositions) {
-            const rasiIndex = Math.floor(planetPositions[graha].longitude / 30);
+        // Corrected: Iterate over the graha positions object provided by the 'jyotish' library
+        for (const graha in planetPositions.grahas) {
+            const rasiIndex = Math.floor(planetPositions.grahas[graha].longitude / 30);
             const rasiName = RASI_NAMES_TAMIL[rasiIndex];
             const grahaName = GRAHA_NAMES_TAMIL[graha];
             horoscopeText += `${grahaName}: ${rasiName} \n`;
@@ -93,7 +91,7 @@
         return {
             horoscopeText,
             lagna: lagnaIndex,
-            planetPositions
+            planetPositions: planetPositions.grahas // Return only the grahas part
         };
     }
 
