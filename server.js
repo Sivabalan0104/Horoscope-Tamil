@@ -1,47 +1,125 @@
-const express = require('express');
-const path = require('path');
+    const express = require('express');
+    const path = require('path');
+    const jyotish = require('jyotish-calculations');
+    const geocoder = require('node-geocoder');
 
-// NOTE: This is a placeholder for the actual jyotish-calculations library.
-// You would install and use the actual library here.
-const jyotishCalculations = {
-    calculateAndTranslateHoroscope: (birthData) => {
-        // In a real application, this function would perform complex calculations
-        // based on the birthData and return a Tamil horoscope text.
-        console.log('Calculating horoscope for:', birthData);
-        const placeholderText = `உங்கள் பிறந்த நாள் ${birthData.birthDate}, நேரம் ${birthData.birthTime} மற்றும் பிறந்த இடம் ${birthData.birthPlace} ஆகியவற்றுக்கான ஜாதகம் இங்கே உள்ளது. உங்கள் ஜாதகம் மிகவும் சுவாரஸ்யமாகவும், எதிர்காலத்திற்கு வழிகாட்டுவதாகவும் இருக்கும். உங்கள் நட்சத்திரம், ராசி, மற்றும் லக்னம் பற்றிய தகவல்கள் கணக்கிடப்பட்டு உங்களுக்கு வழங்கப்படுகின்றன.`;
-        return placeholderText;
+    const app = express();
+    const port = process.env.PORT || 3000;
+
+    app.use(express.json());
+    app.use(express.static(path.join(__dirname, 'public')));
+
+    // Geocoder configuration
+    const options = {
+        provider: 'openstreetmap'
+    };
+    const geo = geocoder(options);
+
+    // Rasi names in Tamil (for building the chart)
+    const RASI_NAMES_TAMIL = [
+        'மேஷம்', 'ரிஷபம்', 'மிதுனம்', 'கடகம்', 'சிம்மம்', 'கன்னி',
+        'துலாம்', 'விருச்சிகம்', 'தனுசு', 'மகரம்', 'கும்பம்', 'மீனம்'
+    ];
+    
+    // Graha names in Tamil
+    const GRAHA_NAMES_TAMIL = {
+        'sun': 'சூரியன்', 'moon': 'சந்திரன்', 'mercury': 'புதன்',
+        'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'jupiter': 'குரு',
+        'saturn': 'சனி', 'rahu': 'ராகு', 'ketu': 'கேது'
+    };
+
+    /**
+     * Calculates the Lagna (Ascendant) based on birth date, time, and location.
+     * @param {Date} birthDateTime - The birth date and time.
+     * @param {object} location - The location object with latitude, longitude, and altitude.
+     * @returns {number} - The Lagna Rasi index (0-11).
+     */
+    function calculateLagna(birthDateTime, location) {
+        // Lagna calculation is a complex process. This is a simplified approach
+        // using the jyotish-calculations library to get the Ascendant.
+        const lagnaInfo = jyotish.lagna.calculateAscendant(birthDateTime, location);
+        // The library returns the Lagna as a zodiac sign object, which we convert to an index (0-11)
+        const lagnaIndex = Math.floor(lagnaInfo.longitude / 30);
+        return lagnaIndex;
     }
-};
 
-const app = express();
-const port = process.env.PORT || 3000;
+    /**
+     * Generates a Tamil horoscope text and chart data.
+     * @param {Date} birthDateTime - The birth date and time.
+     * @param {object} location - The birth location object.
+     * @returns {object} - An object containing the generated horoscope text, Lagna index, and planetary positions.
+     */
+    function generateHoroscope(birthDateTime, location) {
+        // Calculate planetary positions
+        const planetPositions = jyotish.grahas.calculatePositions(birthDateTime, location);
 
-// Middleware to parse JSON bodies from POST requests
-app.use(express.json());
+        // Calculate Lagna
+        const lagnaIndex = calculateLagna(birthDateTime, location);
 
-// Serve the static frontend files (index.html, etc.)
-app.use(express.static(path.join(__dirname, 'public')));
+        // Build the horoscope text
+        let horoscopeText = `பிறந்த தேதி: ${birthDateTime.toLocaleDateString('ta-IN')} \n`;
+        horoscopeText += `பிறந்த நேரம்: ${birthDateTime.toLocaleTimeString('ta-IN')} \n`;
+        horoscopeText += `பிறந்த இடம்: ${location.formattedAddress || 'தெரியாத இடம்'} \n\n`;
+        horoscopeText += `லக்னம்: ${RASI_NAMES_TAMIL[lagnaIndex]} \n\n`;
+        horoscopeText += `கிரகங்களின் நிலைகள்: \n`;
 
-// API endpoint to handle the horoscope calculation request
-app.post('/horoscope', (req, res) => {
-    try {
-        const birthData = req.body;
-        if (!birthData.birthDate || !birthData.birthTime || !birthData.birthPlace) {
-            return res.status(400).json({ error: 'Missing birth data' });
+        // Determine which house each planet is in and add to the text
+        for (const graha in planetPositions) {
+            const rasiIndex = Math.floor(planetPositions[graha].longitude / 30);
+            const rasiName = RASI_NAMES_TAMIL[rasiIndex];
+            const grahaName = GRAHA_NAMES_TAMIL[graha];
+            horoscopeText += `${grahaName}: ${rasiName} \n`;
         }
 
-        // Call the placeholder function to get the horoscope text
-        const horoscopeText = jyotishCalculations.calculateAndTranslateHoroscope(birthData);
-
-        // Send the result back to the frontend
-        res.status(200).json({ horoscopeText: horoscopeText });
-    } catch (error) {
-        console.error('Error processing horoscope request:', error);
-        res.status(500).json({ error: 'Internal server error' });
+        return {
+            horoscopeText,
+            lagna: lagnaIndex,
+            planetPositions
+        };
     }
-});
 
-// Start the server
-app.listen(port, () => {
-    console.log(`Server is running on port ${port}`);
-});
+    app.post('/horoscope', async (req, res) => {
+        try {
+            const { birthDate, birthTime, birthPlace } = req.body;
+            if (!birthDate || !birthTime || !birthPlace) {
+                return res.status(400).json({ error: 'Missing birth data' });
+            }
+
+            // Step 1: Geocode the city to get latitude and longitude
+            const geoResult = await geo.geocode(birthPlace);
+            if (!geoResult || geoResult.length === 0) {
+                return res.status(404).json({ error: 'Could not find coordinates for the specified city.' });
+            }
+            const location = {
+                latitude: geoResult[0].latitude,
+                longitude: geoResult[0].longitude,
+                altitude: 0,
+                formattedAddress: geoResult[0].formattedAddress
+            };
+
+            // Step 2: Parse birth date and time
+            const birthDateTime = new Date(`${birthDate}T${birthTime}:00`);
+            
+            // Step 3: Generate the horoscope
+            const horoscopeData = generateHoroscope(birthDateTime, location);
+
+            res.status(200).json({
+                horoscopeText: horoscopeData.horoscopeText,
+                lagna: horoscopeData.lagna,
+                planetPositions: horoscopeData.planetPositions
+            });
+        } catch (error) {
+            console.error('Error processing horoscope request:', error);
+            res.status(500).json({ error: 'Internal server error' });
+        }
+    });
+
+    // Serve the HTML file from the 'public' directory
+    app.use(express.static(path.join(__dirname, 'public')));
+    app.get('/', (req, res) => {
+        res.sendFile(path.join(__dirname, 'public', 'index.html'));
+    });
+
+    app.listen(port, () => {
+        console.log(`Server running at http://localhost:${port}`);
+    });
