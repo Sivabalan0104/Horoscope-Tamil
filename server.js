@@ -198,8 +198,15 @@ app.post('/horoscope', async (req, res) => {
 });
 
 // Root
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'public', 'index.html'));
+app.get('/debug', (req, res) => {
+  res.json({
+    ok: true,
+    positionerAvailable: !!positioner,
+    positionerMethods: positioner ? Object.keys(positioner) : [],
+    geocoderProvider: 'google',
+    hasGeoApiKey: !!GEOLOCATION_API_KEY,
+    timezoneLibs: { luxon: !!DateTime, geoTz: !!geoTz }
+  });
 });
 
 // Start server
