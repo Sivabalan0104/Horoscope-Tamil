@@ -97,13 +97,13 @@
     </div>
     
     <script>
-        const form = document.getElementById('horoscopeForm');
-        const loading = document.getElementById('loading');
-        const horoscopeResult = document.getElementById('horoscopeResult');
-        const chartContainer = document.getElementById('chartContainer');
-        const horoscopeText = document.getElementById('horoscopeText');
-        const errorMessage = document.getElementById('errorMessage');
-
+      const form = document.getElementById('horoscopeForm');
+      const loading = document.getElementById('loading');
+      const horoscopeResult = document.getElementById('horoscopeResult');
+      const chartContainer = document.getElementById('chartContainer');
+      const horoscopeText = document.getElementById('horoscopeText');
+      const errorMessage = document.getElementById('errorMessage');
+        
         const RASI_NAMES = [
             'மேஷம்', 'ரிஷபம்', 'மிதுனம்', 'கடகம்', 'சிம்மம்', 'கன்னி',
             'துலாம்', 'விருச்சிகம்', 'தனுசு', 'மகரம்', 'கும்பம்', 'மீனம்'
@@ -169,40 +169,46 @@
             loading.classList.remove('hidden');
             horoscopeResult.classList.add('hidden');
             errorMessage.classList.add('hidden');
-
+            errorMessage.textContent = 'கணக்கிடுவதில் பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.'; // default
+        
             const birthDate = document.getElementById('birthDate').value;
             const birthTime = document.getElementById('birthTime').value;
             const birthPlace = document.getElementById('birthPlace').value;
-
+        
             try {
-                const response = await fetch('/horoscope', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ birthDate, birthTime, birthPlace })
-                });
+              const response = await fetch('/horoscope', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ birthDate, birthTime, birthPlace })
+              });
+
+             let data = null;
+              const isJson = response.headers.get('content-type')?.includes('application/json');
+              if (isJson) {
+                try { data = await response.json(); } catch (_) {}
+              }
 
                 if (!response.ok) {
-                    throw new Error(`Server responded with status: ${response.status}`);
-                }
+        const msg = (data && data.error) || `Server responded with status: ${response.status}`;
+        throw new Error(msg);
+      }
 
-                const data = await response.json();
-                
-                if (data.error) {
-                    throw new Error(data.error);
-                }
+      if (data?.error) {
+        throw new Error(data.error);
+      }
 
-                // Call the new function to render the chart
-                createChart(data.lagna, data.planetPositions);
-                horoscopeText.textContent = data.horoscopeText;
-                
-                horoscopeResult.classList.remove('hidden');
-            } catch (error) {
-                console.error('Fetch error:', error);
-                errorMessage.classList.remove('hidden');
-            } finally {
-                loading.classList.add('hidden');
-            }
-        });
-    </script>
+      // Render chart + text
+      createChart(data.lagna, data.planetPositions);
+      horoscopeText.textContent = data.horoscopeText;
+      horoscopeResult.classList.remove('hidden');
+    } catch (error) {
+      console.error('Fetch error:', error);
+      errorMessage.textContent = `பிழை: ${error.message}`;
+      errorMessage.classList.remove('hidden');
+    } finally {
+      loading.classList.add('hidden');
+    }
+  });
+</script>
 </body>
 </html>
