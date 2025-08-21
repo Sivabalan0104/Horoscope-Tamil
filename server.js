@@ -35,7 +35,7 @@
     // Graha names in Tamil
     const GRAHA_NAMES_TAMIL = {
         'sun': 'சூரியன்', 'moon': 'சந்திரன்', 'mercury': 'புதன்',
-        'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'jupiter': 'குரு',
+        'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'செவ்வாய்', 'jupiter': 'குரு',
         'saturn': 'சனி', 'rahu': 'ராகு', 'ketu': 'கேது'
     };
 
@@ -58,7 +58,8 @@
      * @returns {object} - An object containing the generated horoscope text, Lagna index, and planetary positions.
      */
     function generateHoroscope(birthDateTime, location) {
-        const planetPositions = jyotish.grahas.calculatePositions(birthDateTime, location);
+        // CORRECTED: Use jyotish.graha.calculatePositions instead of jyotish.grahas
+        const planetPositions = jyotish.graha.calculatePositions(birthDateTime, location);
         const lagnaIndex = calculateLagna(birthDateTime, location);
 
         let horoscopeText = `பிறந்த தேதி: ${birthDateTime.toLocaleDateString('ta-IN')} \n`;
