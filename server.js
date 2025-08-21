@@ -1,17 +1,20 @@
+// server.js
 const express = require('express');
 const path = require('path');
-// Corrected: Use the 'jyotish' library name from your package.json
+// Import the 'jyotish' library, which should be installed via npm
 const jyotish = require('jyotish');
 const geocoder = require('node-geocoder');
 
 const app = express();
 const port = process.env.PORT || 3000;
 
+// Middleware to parse JSON request bodies
 app.use(express.json());
+// Serve static files from the 'public' directory
 app.use(express.static(path.join(__dirname, 'public')));
 
-// Geocoder configuration
-// IMPORTANT: A GEOLOCATION_API_KEY is required for the 'google' provider
+// Geocoder configuration for location lookup
+// NOTE: This requires a GEOLOCATION_API_KEY environment variable.
 const GEOLOCATION_API_KEY = process.env.GEOLOCATION_API_KEY;
 
 if (!GEOLOCATION_API_KEY) {
@@ -27,13 +30,13 @@ const options = {
 
 const geo = geocoder(options);
 
-// Rasi names in Tamil (for building the chart)
+// Rasi (zodiac sign) names in Tamil for chart display
 const RASI_NAMES_TAMIL = [
     'மேஷம்', 'ரிஷபம்', 'மிதுனம்', 'கடகம்', 'சிம்மம்', 'கன்னி',
     'துலாம்', 'விருச்சிகம்', 'தனுசு', 'மகரம்', 'கும்பம்', 'மீனம்'
 ];
 
-// Graha names in Tamil
+// Graha (planet) names in Tamil
 const GRAHA_NAMES_TAMIL = {
     'sun': 'சூரியன்', 'moon': 'சந்திரன்', 'mercury': 'புதன்',
     'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'jupiter': 'குரு',
@@ -41,27 +44,28 @@ const GRAHA_NAMES_TAMIL = {
 };
 
 /**
- * Calculates the Lagna (Ascendant) based on birth date, time, and location.
+ * Calculates the Lagna (Ascendant) based on birth details.
  * @param {Date} birthDateTime - The birth date and time.
  * @param {object} location - The location object with latitude, longitude, and altitude.
  * @returns {number} - The Lagna Rasi index (0-11).
  */
 function calculateAscendant(birthDateTime, location) {
-    // Corrected: Use the correct function from the 'jyotish' library
-    const lagnaInfo = jyotish.positioner.getLagna(birthDateTime, location.latitude, location.longitude, 0);
+    // Corrected: The 'getLagna' function is a direct method of the 'jyotish' module.
+    const lagnaInfo = jyotish.getLagna(birthDateTime, location.latitude, location.longitude, 0);
+    // Determine the Rasi index by dividing the longitude by 30 degrees
     const lagnaIndex = Math.floor(lagnaInfo.longitude / 30);
     return lagnaIndex;
 }
 
 /**
- * Helper function to robustly get planet positions, handling potential API differences.
+ * Gets planetary positions for the birth chart.
  * @param {Date} birthDateTime - The birth date and time.
  * @param {object} location - The birth location object.
- * @returns {object} - The planetary positions object.
+ * @returns {object} - The planetary positions object from the 'jyotish' library.
  */
 function getPlanetPositions(birthDateTime, location) {
-    // Corrected: Use the correct function from the 'jyotish' library
-    return jyotish.positioner.getBirthChart(birthDateTime, location.latitude, location.longitude, 0);
+    // Corrected: The 'getBirthChart' function is a direct method of the 'jyotish' module.
+    return jyotish.getBirthChart(birthDateTime, location.latitude, location.longitude, 0);
 }
 
 /**
@@ -74,13 +78,14 @@ function generateHoroscope(birthDateTime, location) {
     const planetPositions = getPlanetPositions(birthDateTime, location);
     const lagnaIndex = calculateAscendant(birthDateTime, location);
 
+    // Build the horoscope text string in Tamil
     let horoscopeText = `பிறந்த தேதி: ${birthDateTime.toLocaleDateString('ta-IN')} \n`;
     horoscopeText += `பிறந்த நேரம்: ${birthDateTime.toLocaleTimeString('ta-IN')} \n`;
     horoscopeText += `பிறந்த இடம்: ${location.formattedAddress || 'தெரியாத இடம்'} \n\n`;
     horoscopeText += `லக்னம்: ${RASI_NAMES_TAMIL[lagnaIndex]} \n\n`;
     horoscopeText += `கிரகங்களின் நிலைகள்: \n`;
 
-    // Corrected: Iterate over the graha positions object provided by the 'jyotish' library
+    // Iterate over the planets and add their positions to the text
     for (const graha in planetPositions.grahas) {
         const rasiIndex = Math.floor(planetPositions.grahas[graha].longitude / 30);
         const rasiName = RASI_NAMES_TAMIL[rasiIndex];
@@ -91,10 +96,11 @@ function generateHoroscope(birthDateTime, location) {
     return {
         horoscopeText,
         lagna: lagnaIndex,
-        planetPositions: planetPositions.grahas // Return only the grahas part
+        planetPositions: planetPositions.grahas
     };
 }
 
+// Define the API endpoint to handle horoscope requests
 app.post('/horoscope', async (req, res) => {
     try {
         const { birthDate, birthTime, birthPlace } = req.body;
@@ -127,11 +133,12 @@ app.post('/horoscope', async (req, res) => {
     }
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+// Root endpoint to serve the HTML file
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Start the server
 app.listen(port, () => {
     console.log(`Server running at http://localhost:${port}`);
 });
