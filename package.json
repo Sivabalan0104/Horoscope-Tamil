@@ -9,7 +9,9 @@
   "dependencies": {
     "express": "^4.19.2",
     "jyotish": "^1.0.0",
-    "node-geocoder": "^3.27.0"
+    "node-geocoder": "^3.27.0",
+    "luxon": "^3.4.4",
+    "geo-tz": "^6.0.2"
   },
   "author": "",
   "license": "ISC"
