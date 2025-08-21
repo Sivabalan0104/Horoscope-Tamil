@@ -1,15 +1,13 @@
 {
-  "name": "horoscope-website",
+  "name": "your-app-name",
   "version": "1.0.0",
-  "description": "A website for generating horoscopes.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
     "express": "^4.19.2",
-    "jyotish-calculations": "latest"
-  },
-  "author": "",
-  "license": "ISC"
+    "jyotish-calculations": "^1.0.8",
+    "node-geocoder": "^4.2.0"
+  }
 }
