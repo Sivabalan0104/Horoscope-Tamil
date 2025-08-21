@@ -135,7 +135,7 @@
             // Map planets to houses
             for (const [graha, position] of Object.entries(planetPositions)) {
                 const rasiIndex = Math.floor(position.longitude / 30);
-                const houseIndex = (rasiIndex - (lagna - 1) + 12) % 12;
+                const houseIndex = (rasiIndex - lagna + 12) % 12;
                 houses[houseIndex].planets.push(GRAHA_SYMBOLS[graha]);
             }
 
