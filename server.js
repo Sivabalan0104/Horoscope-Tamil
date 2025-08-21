@@ -46,10 +46,26 @@
      * @returns {number} - The Lagna Rasi index (0-11).
      */
     function calculateAscendant(birthDateTime, location) {
-        // CORRECTED: Call calculateAscendant from the 'lagna' module
         const lagnaInfo = jyotish.lagna.calculateAscendant(birthDateTime, location);
         const lagnaIndex = Math.floor(lagnaInfo.longitude / 30);
         return lagnaIndex;
+    }
+
+    /**
+     * Helper function to robustly get planet positions, handling potential API differences.
+     * @param {Date} birthDateTime - The birth date and time.
+     * @param {object} location - The birth location object.
+     * @returns {object} - The planetary positions object.
+     */
+    function getPlanetPositions(birthDateTime, location) {
+        try {
+            // Attempt to use the function as documented in one version of the library
+            return jyotish.grahas.calculatePositions(birthDateTime, location);
+        } catch (e) {
+            // If that fails, try the alternative function name from another version
+            console.error("Attempting fallback for planet position calculation due to error:", e.message);
+            return jyotish.graha.calculatePlanetPositions(birthDateTime, location);
+        }
     }
 
     /**
@@ -59,8 +75,7 @@
      * @returns {object} - An object containing the generated horoscope text, Lagna index, and planetary positions.
      */
     function generateHoroscope(birthDateTime, location) {
-        // CORRECTED: Call calculatePositions from the 'grahas' module
-        const planetPositions = jyotish.grahas.calculatePositions(birthDateTime, location);
+        const planetPositions = getPlanetPositions(birthDateTime, location);
         const lagnaIndex = calculateAscendant(birthDateTime, location);
 
         let horoscopeText = `பிறந்த தேதி: ${birthDateTime.toLocaleDateString('ta-IN')} \n`;
