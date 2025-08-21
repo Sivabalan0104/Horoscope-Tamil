@@ -3,100 +3,204 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Get Your Horoscope</title>
+    <title>தமிழ் ஜாதகம்</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #F0F4F8;
-            color: #374C80;
+            background-color: #f3f4f6;
         }
+        .horoscope-chart {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            grid-template-rows: repeat(4, 1fr);
+            border: 2px solid #000;
+            width: 400px;
+            height: 400px;
+            margin: 0 auto;
+        }
+        .house {
+            border: 1px solid #000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 5px;
+            font-size: 0.8rem;
+            position: relative;
+        }
+        .house-1 { grid-area: 4 / 2 / 5 / 3; }
+        .house-2 { grid-area: 4 / 3 / 5 / 4; }
+        .house-3 { grid-area: 4 / 4 / 5 / 5; }
+        .house-4 { grid-area: 3 / 4 / 4 / 5; }
+        .house-5 { grid-area: 2 / 4 / 3 / 5; }
+        .house-6 { grid-area: 1 / 4 / 2 / 5; }
+        .house-7 { grid-area: 1 / 3 / 2 / 4; }
+        .house-8 { grid-area: 1 / 2 / 2 / 3; }
+        .house-9 { grid-area: 1 / 1 / 2 / 2; }
+        .house-10 { grid-area: 2 / 1 / 3 / 2; }
+        .house-11 { grid-area: 3 / 1 / 4 / 2; }
+        .house-12 { grid-area: 4 / 1 / 5 / 2; }
+        .horoscope-chart .house:nth-child(1) {
+            grid-column: 2 / 3;
+            grid-row: 4 / 5;
+        }
+        .horoscope-chart .house:nth-child(2) {
+            grid-column: 3 / 4;
+            grid-row: 4 / 5;
+        }
+        /* ... add all 12 houses to create the visual chart grid ... */
     </style>
 </head>
-<body class="flex items-center justify-center min-h-screen p-4">
-    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-12 w-full max-w-lg text-center">
-        <h1 class="text-4xl md:text-5xl font-extrabold mb-4" style="color: #003F5C;">பிறந்தநாள் ஜாதகம்</h1>
-        <p class="text-lg md:text-xl mb-8" style="color: #7A5195;">உங்களது பிறந்தநாள் விவரங்களை உள்ளிட்டு ஜாதகத்தை பெறுங்கள்.</p>
+<body class="bg-gray-100 p-8">
+    <div class="container mx-auto max-w-2xl bg-white rounded-xl shadow-lg p-8">
+        <h1 class="text-4xl font-bold text-center text-gray-800 mb-6">தமிழ் ஜாதகம்</h1>
+        <p class="text-center text-gray-600 mb-8">உங்கள் பிறந்த தேதி, நேரம் மற்றும் இடத்தை உள்ளிட்டு உங்கள் ஜாதகத்தைக் கணக்கிடுங்கள்.</p>
 
-        <form id="horoscope-form" class="space-y-6">
+        <form id="horoscopeForm" class="space-y-6">
             <div>
-                <label for="birthDate" class="block text-left text-sm font-bold mb-2">பிறந்த தேதி</label>
-                <input type="date" id="birthDate" name="birthDate" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+                <label for="birthDate" class="block text-sm font-medium text-gray-700">பிறந்த தேதி</label>
+                <input type="date" id="birthDate" name="birthDate" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div>
-                <label for="birthTime" class="block text-left text-sm font-bold mb-2">பிறந்த நேரம்</label>
-                <input type="time" id="birthTime" name="birthTime" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+                <label for="birthTime" class="block text-sm font-medium text-gray-700">பிறந்த நேரம்</label>
+                <input type="time" id="birthTime" name="birthTime" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500">
             </div>
             <div>
-                <label for="birthPlace" class="block text-left text-sm font-bold mb-2">பிறந்த இடம்</label>
-                <input type="text" id="birthPlace" name="birthPlace" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+                <label for="birthPlace" class="block text-sm font-medium text-gray-700">பிறந்த இடம்</label>
+                <input type="text" id="birthPlace" name="birthPlace" required class="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500" placeholder="உதாரணம்: சென்னை">
             </div>
-            <button type="submit" class="w-full font-bold py-3 px-6 rounded-full text-white shadow-lg transition-transform transform hover:scale-105" style="background-color: #EF5675;">ஜாதகம் பார்க்க</button>
+            <button type="submit" class="w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+                ஜாதகம் கணக்கிடு
+            </button>
         </form>
 
-        <div id="results" class="mt-8 text-left hidden">
-            <h2 class="text-3xl font-bold mb-4" style="color: #003F5C;">ஜாதக பலன்கள்</h2>
-            <div id="horoscope-content" class="bg-gray-100 rounded-lg p-6 text-lg leading-relaxed">
-                <!-- Horoscope results will be displayed here -->
+        <div id="loading" class="text-center mt-8 hidden">
+            <div class="animate-spin inline-block w-8 h-8 border-4 border-t-4 border-gray-200 border-t-indigo-600 rounded-full"></div>
+            <p class="mt-2 text-gray-600">கணக்கிடப்படுகிறது...</p>
+        </div>
+
+        <div id="horoscopeResult" class="mt-8 hidden">
+            <h2 class="text-2xl font-bold text-center text-gray-800 mb-4">உங்கள் ஜாதகம்</h2>
+            <div id="chartContainer" class="flex justify-center">
+                <!-- Horoscope chart will be rendered here -->
             </div>
+            <p id="horoscopeText" class="mt-6 text-gray-700 text-center whitespace-pre-wrap"></p>
+        </div>
+
+        <div id="errorMessage" class="mt-8 hidden text-center text-red-500">
+            <p>கணக்கிடுவதில் பிழை ஏற்பட்டது. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.</p>
         </div>
     </div>
-
+    
     <script>
-        document.getElementById('horoscope-form').addEventListener('submit', async function(event) {
-            event.preventDefault();
-            const form = event.target;
-            const formData = new FormData(form);
-            const data = Object.fromEntries(formData.entries());
+        const form = document.getElementById('horoscopeForm');
+        const loading = document.getElementById('loading');
+        const horoscopeResult = document.getElementById('horoscopeResult');
+        const chartContainer = document.getElementById('chartContainer');
+        const horoscopeText = document.getElementById('horoscopeText');
+        const errorMessage = document.getElementById('errorMessage');
 
-            // Simple validation
-            if (!data.birthDate || !data.birthTime || !data.birthPlace) {
-                alert('Please fill in all fields.');
-                return;
+        const RASI_NAMES = [
+            'மேஷம்', 'ரிஷபம்', 'மிதுனம்', 'கடகம்', 'சிம்மம்', 'கன்னி',
+            'துலாம்', 'விருச்சிகம்', 'தனுசு', 'மகரம்', 'கும்பம்', 'மீனம்'
+        ];
+
+        const GRAHA_NAMES = {
+            'sun': 'சூரியன்', 'moon': 'சந்திரன்', 'mercury': 'புதன்',
+            'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'jupiter': 'குரு',
+            'saturn': 'சனி', 'rahu': 'ராகு', 'ketu': 'கேது'
+        };
+
+        const GRAHA_SYMBOLS = {
+            'sun': 'சூ', 'moon': 'ச', 'mercury': 'பு',
+            'venus': 'சு', 'mars': 'செ', 'jupiter': 'கு',
+            'saturn': 'ச', 'rahu': 'ரா', 'ketu': 'கே'
+        };
+
+        // Function to create the horoscope chart UI
+        function createChart(lagna, planetPositions) {
+            chartContainer.innerHTML = ''; // Clear previous chart
+            const chartDiv = document.createElement('div');
+            chartDiv.className = 'horoscope-chart';
+
+            const houses = new Array(12).fill(null).map((_, i) => ({
+                rasi: RASI_NAMES[(lagna + i) % 12],
+                planets: []
+            }));
+
+            // Map planets to houses
+            for (const [graha, position] of Object.entries(planetPositions)) {
+                const rasiIndex = Math.floor(position.longitude / 30);
+                const houseIndex = (rasiIndex - (lagna - 1) + 12) % 12;
+                houses[houseIndex].planets.push(GRAHA_SYMBOLS[graha]);
             }
 
-            // Disable button and show loading state
-            const submitButton = form.querySelector('button');
-            submitButton.disabled = true;
-            submitButton.textContent = 'கணக்கீடு செய்கிறது...';
+            // Create house elements
+            for (let i = 0; i < 12; i++) {
+                const houseDiv = document.createElement('div');
+                houseDiv.className = `house house-${i + 1} relative`;
+                
+                const rasiNameSpan = document.createElement('span');
+                rasiNameSpan.className = 'absolute top-1 left-1 text-xs';
+                rasiNameSpan.textContent = houses[i].rasi.slice(0, 2); // Show first two letters of Rasi
+                houseDiv.appendChild(rasiNameSpan);
+
+                const planetList = document.createElement('div');
+                planetList.className = 'flex flex-col items-center justify-center h-full';
+                houses[i].planets.forEach(planet => {
+                    const planetSpan = document.createElement('span');
+                    planetSpan.className = 'font-semibold text-gray-800';
+                    planetSpan.textContent = planet;
+                    planetList.appendChild(planetSpan);
+                });
+                houseDiv.appendChild(planetList);
+
+                chartDiv.appendChild(houseDiv);
+            }
+            chartContainer.appendChild(chartDiv);
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            loading.classList.remove('hidden');
+            horoscopeResult.classList.add('hidden');
+            errorMessage.classList.add('hidden');
+
+            const birthDate = document.getElementById('birthDate').value;
+            const birthTime = document.getElementById('birthTime').value;
+            const birthPlace = document.getElementById('birthPlace').value;
 
             try {
-                // Send data to the backend
                 const response = await fetch('/horoscope', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(data),
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ birthDate, birthTime, birthPlace })
                 });
 
                 if (!response.ok) {
-                    throw new Error('Network response was not ok');
+                    throw new Error(`Server responded with status: ${response.status}`);
                 }
 
-                const result = await response.json();
-
-                // Display results
-                const resultsDiv = document.getElementById('results');
-                const contentDiv = document.getElementById('horoscope-content');
+                const data = await response.json();
                 
-                contentDiv.textContent = result.horoscopeText;
-                resultsDiv.classList.remove('hidden');
+                if (data.error) {
+                    throw new Error(data.error);
+                }
 
+                // Call the new function to render the chart
+                createChart(data.lagna, data.planetPositions);
+                horoscopeText.textContent = data.horoscopeText;
+                
+                horoscopeResult.classList.remove('hidden');
             } catch (error) {
-                console.error('Error:', error);
-                const resultsDiv = document.getElementById('results');
-                const contentDiv = document.getElementById('horoscope-content');
-                contentDiv.textContent = 'ஜாதகம் கணக்கிட முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.';
-                resultsDiv.classList.remove('hidden');
-
+                console.error('Fetch error:', error);
+                errorMessage.classList.remove('hidden');
             } finally {
-                // Re-enable button
-                submitButton.disabled = false;
-                submitButton.textContent = 'ஜாதகம் பார்க்க';
+                loading.classList.add('hidden');
             }
         });
     </script>
