@@ -60,7 +60,7 @@
      */
     function generateHoroscope(birthDateTime, location) {
         // CORRECTED: Call calculatePositions from the 'grahas' module
-        const planetPositions = jyotish.graha.calculatePlanetPositions(birthDateTime, location);
+        const planetPositions = jyotish.grahas.calculatePositions(birthDateTime, location);
         const lagnaIndex = calculateAscendant(birthDateTime, location);
 
         let horoscopeText = `பிறந்த தேதி: ${birthDateTime.toLocaleDateString('ta-IN')} \n`;
