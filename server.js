@@ -1,8 +1,8 @@
 // server.js
 const express = require('express');
 const path = require('path');
-// Corrected: Import 'jyotish-calculations' as listed in your package.json
-const jyotish = require('jyotish-calculations');
+// Corrected: Import 'jyotish' as listed in the updated package.json
+const jyotish = require('jyotish');
 const geocoder = require('node-geocoder');
 
 const app = express();
@@ -50,8 +50,8 @@ const GRAHA_NAMES_TAMIL = {
  * @returns {number} - The Lagna Rasi index (0-11).
  */
 function calculateAscendant(birthDateTime, location) {
-    // Corrected: The 'getLagna' function is a direct method of the 'jyotish-calculations' module.
-    const lagnaInfo = jyotish.getLagna(birthDateTime, location.latitude, location.longitude, 0);
+    // The 'getLagna' function is a direct method of the 'jyotish.positioner' submodule.
+    const lagnaInfo = jyotish.positioner.getLagna(birthDateTime, location.latitude, location.longitude, 0);
     // Determine the Rasi index by dividing the longitude by 30 degrees
     const lagnaIndex = Math.floor(lagnaInfo.longitude / 30);
     return lagnaIndex;
@@ -64,8 +64,8 @@ function calculateAscendant(birthDateTime, location) {
  * @returns {object} - The planetary positions object from the 'jyotish' library.
  */
 function getPlanetPositions(birthDateTime, location) {
-    // Corrected: The 'getBirthChart' function is a direct method of the 'jyotish-calculations' module.
-    return jyotish.getBirthChart(birthDateTime, location.latitude, location.longitude, 0);
+    // The 'getBirthChart' function is a direct method of the 'jyotish.positioner' submodule.
+    return jyotish.positioner.getBirthChart(birthDateTime, location.latitude, location.longitude, 0);
 }
 
 /**
