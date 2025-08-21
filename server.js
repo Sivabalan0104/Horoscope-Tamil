@@ -35,7 +35,7 @@
     // Graha names in Tamil
     const GRAHA_NAMES_TAMIL = {
         'sun': 'சூரியன்', 'moon': 'சந்திரன்', 'mercury': 'புதன்',
-        'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'செவ்வாய்', 'jupiter': 'குரு',
+        'venus': 'சுக்கிரன்', 'mars': 'செவ்வாய்', 'jupiter': 'குரு',
         'saturn': 'சனி', 'rahu': 'ராகு', 'ketu': 'கேது'
     };
 
