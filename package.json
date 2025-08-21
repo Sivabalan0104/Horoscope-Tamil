@@ -1,14 +1,16 @@
 {
-  "name": "horoscope-server",
+  "name": "horoscope-website",
   "version": "1.0.0",
-  "description": "A server for generating horoscopes",
+  "description": "A website for generating horoscopes.",
   "main": "server.js",
   "scripts": {
     "start": "node server.js"
   },
   "dependencies": {
-    "express": "^4.17.1",
+    "express": "^4.19.2",
     "jyotish": "^1.0.0",
     "node-geocoder": "^3.27.0"
-  }
+  },
+  "author": "",
+  "license": "ISC"
 }
