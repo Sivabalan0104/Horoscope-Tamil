@@ -1,0 +1,15 @@
+{
+  "name": "horoscope-website",
+  "version": "1.0.0",
+  "description": "A website for generating horoscopes.",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2",
+    "jyotish-calculations": "latest"
+  },
+  "author": "",
+  "license": "ISC"
+}

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Your Horoscope</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F0F4F8;
+            color: #374C80;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+    <div class="bg-white rounded-xl shadow-2xl p-6 sm:p-8 md:p-12 w-full max-w-lg text-center">
+        <h1 class="text-4xl md:text-5xl font-extrabold mb-4" style="color: #003F5C;">பிறந்தநாள் ஜாதகம்</h1>
+        <p class="text-lg md:text-xl mb-8" style="color: #7A5195;">உங்களது பிறந்தநாள் விவரங்களை உள்ளிட்டு ஜாதகத்தை பெறுங்கள்.</p>
+
+        <form id="horoscope-form" class="space-y-6">
+            <div>
+                <label for="birthDate" class="block text-left text-sm font-bold mb-2">பிறந்த தேதி</label>
+                <input type="date" id="birthDate" name="birthDate" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+            </div>
+            <div>
+                <label for="birthTime" class="block text-left text-sm font-bold mb-2">பிறந்த நேரம்</label>
+                <input type="time" id="birthTime" name="birthTime" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+            </div>
+            <div>
+                <label for="birthPlace" class="block text-left text-sm font-bold mb-2">பிறந்த இடம்</label>
+                <input type="text" id="birthPlace" name="birthPlace" required class="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-opacity-50" style="focus:ring-color: #BC5090;">
+            </div>
+            <button type="submit" class="w-full font-bold py-3 px-6 rounded-full text-white shadow-lg transition-transform transform hover:scale-105" style="background-color: #EF5675;">ஜாதகம் பார்க்க</button>
+        </form>
+
+        <div id="results" class="mt-8 text-left hidden">
+            <h2 class="text-3xl font-bold mb-4" style="color: #003F5C;">ஜாதக பலன்கள்</h2>
+            <div id="horoscope-content" class="bg-gray-100 rounded-lg p-6 text-lg leading-relaxed">
+                <!-- Horoscope results will be displayed here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('horoscope-form').addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const form = event.target;
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+
+            // Simple validation
+            if (!data.birthDate || !data.birthTime || !data.birthPlace) {
+                alert('Please fill in all fields.');
+                return;
+            }
+
+            // Disable button and show loading state
+            const submitButton = form.querySelector('button');
+            submitButton.disabled = true;
+            submitButton.textContent = 'கணக்கீடு செய்கிறது...';
+
+            try {
+                // Send data to the backend
+                const response = await fetch('/horoscope', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(data),
+                });
+
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+
+                const result = await response.json();
+
+                // Display results
+                const resultsDiv = document.getElementById('results');
+                const contentDiv = document.getElementById('horoscope-content');
+                
+                contentDiv.textContent = result.horoscopeText;
+                resultsDiv.classList.remove('hidden');
+
+            } catch (error) {
+                console.error('Error:', error);
+                const resultsDiv = document.getElementById('results');
+                const contentDiv = document.getElementById('horoscope-content');
+                contentDiv.textContent = 'ஜாதகம் கணக்கிட முடியவில்லை. தயவுசெய்து மீண்டும் முயற்சிக்கவும்.';
+                resultsDiv.classList.remove('hidden');
+
+            } finally {
+                // Re-enable button
+                submitButton.disabled = false;
+                submitButton.textContent = 'ஜாதகம் பார்க்க';
+            }
+        });
+    </script>
+</body>
+</html>
